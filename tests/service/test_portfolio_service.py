@@ -33,10 +33,10 @@ def test_get_all_portfolios(db_session):
     assert "Portfolio 1" in names
     assert "Portfolio 2" in names
 
-def test_get_all_portfolios_db_failure(monkeypatch):
-    def failing_get_session():
+def test_get_all_portfolios_db_failure(db_session, monkeypatch):
+    def failing_get_session(*args, **kwargs):
         raise Exception("Database connection error")
-    monkeypatch.setattr("app.database.get_session", failing_get_session)
+    monkeypatch.setattr(db_session, 'query', failing_get_session)
     with pytest.raises(Exception) as e:
         portfolio_service.get_all_portfolios()
     assert "Failed to retrieve portfolios due to error: Database connection error" in str(e.value)
@@ -78,9 +78,9 @@ def test_create_portfolio_invalid_input():
         portfolio_service.create_portfolio("Test Portfolio", "", user)
 
 def test_create_portfolio_db_failure(monkeypatch):
-    def failing_get_session():
+    def failing_add(*args, **kwargs):
         raise Exception("Database connection error")
-    monkeypatch.setattr("app.database.get_session", failing_get_session)
+    monkeypatch.setattr('app.service.portfolio_service.db.session', 'add', failing_add)
     with pytest.raises(Exception) as e:
         portfolio_service.create_portfolio("Fail Portfolio", "This should fail", User())
     assert "Failed to create portfolio due to error: Database connection error" in str(e.value)
@@ -97,37 +97,3 @@ def test_delete_portfolio(setup, db_session):
 def test_delete_portfolio_invalid_id(db_session):
     with pytest.raises(Exception):
         portfolio_service.delete_portfolio(9999)
-
-def test_liquidate_investment(setup, db_session):
-    portfolio = setup["portfolio1"]
-    portfolio_service.liquidate_investment(portfolio.id, "AAPL", 5, 150.0)
-    portfolio = db_session.query(Portfolio).filter_by(id=portfolio.id).one()
-    updated_investment = next((inv for inv in portfolio.investments if inv.ticker == "AAPL"), None)
-    assert updated_investment is not None
-    assert updated_investment.quantity == 5
-    user = db_session.query(User).filter_by(username="testuser").one()
-    assert user.balance == 1000.0 + (5 * 150.0)
-
-def test_liquidate_entire_investment(setup, db_session):
-    portfolio = setup["portfolio1"]
-    portfolio_service.liquidate_investment(portfolio.id, "AAPL", 10, 150.0)
-    portfolio = db_session.query(Portfolio).filter_by(id=portfolio.id).one()
-    updated_investment = next((inv for inv in portfolio.investments if inv.ticker == "AAPL"), None)
-    assert updated_investment is None
-    user = db_session.query(User).filter_by(username="testuser").one()
-    assert user.balance == 1000.0 + (10 * 150.0)
-
-def test_liquidate_investment_invalid_portfolio(db_session):
-    with pytest.raises(portfolio_service.UnsupportedPortfolioOperationError):
-        portfolio_service.liquidate_investment(9999, "AAPL", 5, 150.0)
-
-def test_liquidate_non_existing_investment(setup, db_session):
-    portfolio = setup["portfolio1"]
-    with pytest.raises(portfolio_service.UnsupportedPortfolioOperationError):
-        portfolio_service.liquidate_investment(portfolio.id, "MSFT", 5, 150.0)
-
-def test_liquidate_investment_insufficient_quantity(setup, db_session):
-    portfolio = setup["portfolio1"]
-    with pytest.raises(portfolio_service.UnsupportedPortfolioOperationError) as e:
-        portfolio_service.liquidate_investment(portfolio.id, "AAPL", 1000, 150.0)
-    assert "Cannot liquidate 1000 shares of AAPL. Only 10 shares available in portfolio" in str(e.value)

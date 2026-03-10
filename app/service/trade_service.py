@@ -1,6 +1,6 @@
 import datetime
 
-from app.db import db
+from app.db import db, transactional
 from app.models import Investment, Portfolio, Transaction
 from app.service.alpha_vantage_client import get_quote
 
@@ -13,6 +13,7 @@ class InsufficientFundsError(Exception):
     pass
 
 
+@transactional
 def execute_purchase_order(portfolio_id: int, ticker: str, quantity: int):
     """
     Execute a purchase order for a given portfolio, security ticker, and quantity.
@@ -64,6 +65,7 @@ def execute_purchase_order(portfolio_id: int, ticker: str, quantity: int):
     )
 
 
+@transactional
 def liquidate_investment(portfolio_id: int, ticker: str, quantity: int):
     """
     Liquidate shares of a security from a portfolio at the current market price.
