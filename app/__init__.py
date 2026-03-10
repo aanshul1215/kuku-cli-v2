@@ -1,13 +1,18 @@
 from flask import Flask, jsonify
+from flask_caching import Cache
 from pydantic import ValidationError
 
+from app.config import get_config
 from app.db import db
 from app.routes import portfolio_bp, security_bp, trade_bp, user_bp
 
+cache = Cache()
 
-def create_app(config):
+
+def create_app(config_name=None):
     try:
         app = Flask(__name__)
+        config = get_config(config_name)
         app.config.from_object(config)
 
         # register extensions
