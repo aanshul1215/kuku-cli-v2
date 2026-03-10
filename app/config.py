@@ -6,7 +6,8 @@ load_dotenv()
 
 
 class Config:
-    pass
+    CACHE_TYPE = 'SimpleCache'
+    CACHE_DEFAULT_TIMEOUT = 300  # 5 minutes
 
 
 class TestConfig(Config):
