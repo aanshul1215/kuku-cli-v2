@@ -27,6 +27,10 @@ def client(app):
             db.session.remove()
             db.drop_all()
 
+@pytest.fixture(scope='function')
+def db_session(client):
+    yield db.session
+
 def _populate_database():
     admin_user = User(username='admin', password='admin', firstname='Admin', lastname='User', balance=1000.00)
     db.session.add(admin_user)
