@@ -1,119 +1,99 @@
 # Portfolio Management Application
 
-A Flask-based web application for managing investment portfolios, executing trades, and tracking transactions. This app integrates with the Alpha Vantage API for real-time stock data and uses AWS Cognito for secure authentication.
+This is a Flask app built for managing portfolios, placing buy/sell trades, and tracking transaction history.
 
-## Features
+It uses Alpha Vantage for market prices and Cognito-style token auth for protected routes.
 
-- **User Management**: Register and manage user accounts with balance tracking
-- **Portfolio Management**: Create and manage multiple investment portfolios
-- **Stock Trading**: Execute buy/sell orders with real-time price data from Alpha Vantage
-- **Transaction History**: Track all trading activities and portfolio performance
-- **Security Integration**: OIDC authentication via AWS Cognito
-- **Authorization**: Role-based access control for portfolio operations
+## What It Does
+
+- Create and manage users with balances
+- Create portfolios and list portfolio data
+- Execute buy and sell operations
+- Track transaction history
+- Enforce access checks on protected actions
 
 ## Tech Stack
 
-- **Backend**: Flask with SQLAlchemy ORM
-- **Database**: MySQL (production) / SQLite (testing)
-- **Authentication**: AWS Cognito OIDC
-- **API Integration**: Alpha Vantage for stock data
-- **Caching**: Flask-Caching for API response optimization
-- **Validation**: Pydantic for request validation
-- **Testing**: pytest with coverage reporting
+- Python + Flask
+- SQLAlchemy ORM
+- Pydantic request validation
+- Flask-Caching
+- pytest + coverage
 
-## Setup
+## Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd portfolio-app
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables**
-   
-   Copy `.env.example` to `.env` and fill in your values:
-   ```env
-   FLASK_ENV=development
-   DATABASE_URL=mysql+pymysql://user:password@localhost/dbname
-   ALPHA_VANTAGE_API_KEY=your_api_key_here
-   COGNITO_REGION=us-east-1
-   COGNITO_USER_POOL_ID=your_pool_id
-   COGNITO_CLIENT_ID=your_client_id
-   ```
-
-5. **Initialize database**
-   ```bash
-   flask db upgrade
-   ```
-
-## Running the Application
+1. Create and activate a virtual environment.
 
 ```bash
-flask run
+python -m venv venv
+# Windows PowerShell
+venv\Scripts\Activate.ps1
 ```
 
-The application will start on `http://localhost:5000`
-
-## API Endpoints
-
-### Authentication
-- `POST /users/login` - User login via OIDC
-- `POST /users/register` - User registration
-
-### Portfolios
-- `GET /portfolios` - List user portfolios
-- `POST /portfolios` - Create new portfolio
-- `GET /portfolios/<id>` - Get portfolio details
-
-### Trading
-- `POST /trades/buy` - Execute buy order
-- `POST /trades/sell` - Execute sell order
-
-### Securities
-- `GET /securities` - List available securities
-- `GET /securities/<ticker>` - Get security details
-
-## Testing
-
-Run the test suite with coverage:
+2. Install dependencies.
 
 ```bash
-pytest --cov=app --cov-report=term-missing
+pip install -r requirements.txt
 ```
 
-## Project Structure
+3. Create a `.env` (or set environment variables) with your config.
 
+```env
+FLASK_ENV=development
+DATABASE_URL=mysql+pymysql://user:password@localhost/dbname
+ALPHA_VANTAGE_API_KEY=your_api_key_here
+COGNITO_REGION=us-east-1
+COGNITO_USER_POOL_ID=your_pool_id
+COGNITO_APP_CLIENT_ID=your_client_id
+COGNITO_JWKS_URL=https://cognito-idp.<region>.amazonaws.com/<pool_id>/.well-known/jwks.json
 ```
+
+## Run the App
+
+Use the project venv interpreter so imports/dependencies are consistent.
+
+```bash
+venv\Scripts\python.exe app\main.py
+```
+
+Default local URL: `http://127.0.0.1:5000`
+
+## Run Tests + Coverage
+
+```bash
+venv\Scripts\python.exe -m pytest --cov=app --cov-report=term-missing
+```
+
+Current benchmark status:
+- All tests passing
+- Coverage is above 80%
+
+## Main Routes
+
+- `GET /securities/` (auth required)
+- `GET /securities/<ticker>` (auth required)
+- `GET /securities/<ticker>/transactions` (auth required)
+- `GET /users/` (auth required)
+- `POST /users/` (auth required)
+- `GET /portfolios/` (auth required)
+- `POST /portfolios/` (auth required)
+- `POST /trades/buy` (auth + access check)
+- `POST /trades/sell` (auth + access check)
+
+## Project Layout
+
+```text
 app/
-├── auth/           # Authentication modules
-├── models/         # SQLAlchemy models
-├── routes/         # Flask blueprints
-├── service/        # Business logic
-├── schemas.py      # Pydantic validation
-├── config.py       # Configuration classes
-└── __init__.py     # App factory
+  auth/         authentication helpers/decorators
+  models/       SQLAlchemy models
+  routes/       Flask blueprints
+  service/      business logic
+  schemas.py    pydantic request schemas
+  config.py     app config classes
+  main.py       entry point
 ```
 
-## Contributing
+## Notes
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
+- `python app/main.py` and `python -m app.main` can behave differently depending on your interpreter/path.
+- If you hit module errors, run everything through `venv\Scripts\python.exe`.

@@ -77,13 +77,12 @@ def test_create_portfolio_invalid_input():
     with pytest.raises(portfolio_service.UnsupportedPortfolioOperationError):
         portfolio_service.create_portfolio("Test Portfolio", "", user)
 
-def test_create_portfolio_db_failure(monkeypatch):
-    def failing_add(*args, **kwargs):
-        raise Exception("Database connection error")
-    monkeypatch.setattr('app.service.portfolio_service.db.session', 'add', failing_add)
-    with pytest.raises(Exception) as e:
-        portfolio_service.create_portfolio("Fail Portfolio", "This should fail", User())
-    assert "Failed to create portfolio due to error: Database connection error" in str(e.value)
+def test_create_portfolio_db_failure():
+    from unittest.mock import patch
+    with patch('app.service.portfolio_service.db.session.add', side_effect=Exception("Database connection error")):
+        with pytest.raises(Exception) as e:
+            portfolio_service.create_portfolio("Fail Portfolio", "This should fail", User())
+        assert "Failed to create portfolio due to error: Database connection error" in str(e.value)
         
 def test_delete_portfolio(setup, db_session):
     user = setup["user"]

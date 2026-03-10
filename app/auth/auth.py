@@ -13,17 +13,31 @@ def _get_jwks_client():
     return PyJWKClient(jwks_url)
 
 def _get_cognito_config():
+    user_pool_id = os.environ.get('COGNITO_USER_POOL_ID')
+    region = os.environ.get('COGNITO_REGION')
+    expected_issuer = os.environ.get('COGNITO_ISSUER')
+    if not expected_issuer and user_pool_id and region:
+        expected_issuer = f'https://cognito-idp.{region}.amazonaws.com/{user_pool_id}'
+
     return {
-        'user_pool_id': os.environ.get('COGNITO_USER_POOL_ID'),
+        'user_pool_id': user_pool_id,
         'app_client_id': os.environ.get('COGNITO_APP_CLIENT_ID'),
-        'region': os.environ.get('COGNITO_REGION'),
+        'region': region,
+        'issuer': expected_issuer,
     }
 
 def verify_token(token):
     try:
+        cognito_config = _get_cognito_config()
         jwks_client = _get_jwks_client()
         signing_key = jwks_client.get_signing_key_from_jwt(token)
-        payload = jwt.decode(token, signing_key.key, algorithms=["RS256"], audience=_get_cognito_config()['app_client_id'])
+        payload = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=['RS256'],
+            audience=cognito_config['app_client_id'],
+            issuer=cognito_config['issuer'],
+        )
         return payload
     except jwt.ExpiredSignatureError:
         raise AuthError('Token has expired')

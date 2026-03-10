@@ -9,9 +9,7 @@ def transactional(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         try:
-            result = f(*args, **kwargs)
-            db.session.commit()
-            return result
+            return f(*args, **kwargs)
         except Exception as e:
             db.session.rollback()
             raise e

@@ -1,10 +1,12 @@
 from flask import Flask, jsonify
 from flask_caching import Cache
 from pydantic import ValidationError
+from werkzeug.exceptions import HTTPException
 
 from app.config import get_config
 from app.db import db
 from app.routes import portfolio_bp, security_bp, trade_bp, user_bp
+from app.schemas import ErrorResponse
 
 cache = Cache()
 
@@ -18,6 +20,7 @@ def create_app(config_name=None):
         # register extensions
         db.init_app(app)
         cache.init_app(app)
+        app.cache = cache
 
         # register blueprints
         app.register_blueprint(user_bp, url_prefix='/users')
@@ -26,14 +29,18 @@ def create_app(config_name=None):
         app.register_blueprint(trade_bp, url_prefix='/trades')
 
         # register error handlers
+        @app.errorhandler(HTTPException)
+        def handle_http_exception(e):
+            return jsonify(ErrorResponse(error=e.name, detail=e.description).model_dump()), e.code
+
         @app.errorhandler(Exception)
         def handle_exception(e):
             db.session.rollback()
-            return jsonify({'error': 'An internal error occurred', 'detail': str(e)}), 500
+            return jsonify(ErrorResponse(error='An internal error occurred', detail=str(e)).model_dump()), 500
 
         @app.errorhandler(ValidationError)
         def handle_validation_error(e):
-            return jsonify({'error': 'Validation error', 'detail': e.errors()}), 422
+            return jsonify(ErrorResponse(error='Validation error', detail=str(e.errors())).model_dump()), 422
 
         return app
     except Exception as e:

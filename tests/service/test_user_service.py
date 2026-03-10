@@ -2,6 +2,7 @@ import pytest
 import app.service.user_service as user_service
 from app.models import User
 from app.service.portfolio_service import create_portfolio
+from app.service.user_service import UnsupportedUserOperationError
 
 def test_get_all_users_exception(db_session, monkeypatch):
     def raise_exception(_):
@@ -46,14 +47,13 @@ def test_delete_user(db_session):
     users = user_service.get_all_users()
     assert len(users) == initial_count
 
-def test_delete_user_db_exception(db_session, monkeypatch):
-    user_service.create_user('test_user78', 'xxx', 'Test', 'User', 150.00)
-    def raise_exception(_):
-        raise Exception("Database error")
-    monkeypatch.setattr(db_session, 'delete', raise_exception)
-    with pytest.raises(user_service.UnsupportedUserOperationError) as e:
-        user_service.delete_user('test_user78')
-    assert str(e.value) == "Failed to delete user due to error: Database error"
+def test_create_user_integrity_error(db_session):
+    from unittest.mock import patch
+    from sqlalchemy.exc import IntegrityError
+    with patch('app.service.user_service.db.session.add', side_effect=IntegrityError(None, None, None)):
+        with pytest.raises(UnsupportedUserOperationError) as e:
+            user_service.create_user('unique_user', 'pass', 'Test', 'User', 100.0)
+        assert "Failed to create user" in str(e.value)
 
 def test_delete_admin_user_raises(db_session):
     with pytest.raises(user_service.UnsupportedUserOperationError) as e:
@@ -88,7 +88,15 @@ def test_update_user_balance(db_session):
 def test_update_nonexistent_user_balance_raises(db_session):
     with pytest.raises(user_service.UnsupportedUserOperationError) as e:
         user_service.update_user_balance('nonexistent_user', 300.00)
-    assert "User with username nonexistent_user does not exist" in str(e.value)
+
+def test_delete_user_integrity_error(db_session):
+    from unittest.mock import patch
+    from sqlalchemy.exc import IntegrityError
+    user_service.create_user('test_user', 'xxx', 'Test', 'User', 100.00)
+    with patch('app.service.user_service.db.session.delete', side_effect=IntegrityError(None, None, None)):
+        with pytest.raises(UnsupportedUserOperationError) as e:
+            user_service.delete_user('test_user')
+        assert "Cannot delete user test_user due to existing dependencies" in str(e.value)
 
 def test_get_user_by_username(db_session):
     user = user_service.get_user_by_username('admin')

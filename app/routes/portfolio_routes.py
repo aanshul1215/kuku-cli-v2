@@ -5,7 +5,7 @@ import app.service.transaction_service as transaction_service
 import app.service.user_service as user_service
 from app.auth.auth import require_auth
 from app.db import db
-from app.schemas import CreatePortfolioRequest
+from app.schemas import CreatePortfolioRequest, GrantAccessRequest
 from app.service.portfolio_access_service import check_access
 
 portfolio_bp = Blueprint('portfolio', __name__)
