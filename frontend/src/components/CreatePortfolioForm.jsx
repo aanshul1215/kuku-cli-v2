@@ -26,7 +26,8 @@ export default function CreatePortfolioForm({ onCreated }) {
     setSuccess(false);
 
     try {
-      await createPortfolio(token, { username, name, description });
+      const finalDescription = description.trim() || "No description provided";
+      await createPortfolio(token, { username, name, description: finalDescription });
       setName("");
       setDescription("");
       setSuccess(true);
