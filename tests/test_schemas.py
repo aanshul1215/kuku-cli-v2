@@ -1,5 +1,6 @@
 import pytest
 from pydantic import ValidationError
+
 from app.schemas import (
     BuyTradeRequest,
     CreatePortfolioRequest,
@@ -9,6 +10,7 @@ from app.schemas import (
     SellTradeRequest,
     UpdateBalanceRequest,
 )
+
 
 def test_buy_trade_request_valid():
     req = BuyTradeRequest(portfolio_id=1, ticker="AAPL", quantity=10)

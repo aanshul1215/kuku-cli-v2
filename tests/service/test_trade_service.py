@@ -1,11 +1,19 @@
-import pytest
 from unittest.mock import patch
-from app.models import User, Portfolio
-from app.service.portfolio_service import create_portfolio
-from app.service.trade_service import execute_purchase_order, InsufficientFundsError, TradeExecutionException, liquidate_investment
-from app.service.user_service import create_user
+
+import pytest
+
+from app.models import Portfolio, User
 from app.service import transaction_service
 from app.service.alpha_vantage_client import SecurityQuote
+from app.service.portfolio_service import create_portfolio
+from app.service.trade_service import (
+    InsufficientFundsError,
+    TradeExecutionException,
+    execute_purchase_order,
+    liquidate_investment,
+)
+from app.service.user_service import create_user
+
 
 @pytest.fixture(autouse=True)
 def setup(db_session):

@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Allow running via `python app/main.py` by ensuring project root is on sys.path.
 if __package__ is None or __package__ == '':

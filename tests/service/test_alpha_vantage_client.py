@@ -1,6 +1,7 @@
-import pytest
-from unittest.mock import patch, MagicMock
-from app.service.alpha_vantage_client import get_company_name, get_price_data, get_quote, SecurityQuote
+from unittest.mock import MagicMock, patch
+
+from app.service.alpha_vantage_client import SecurityQuote, get_company_name, get_price_data, get_quote
+
 
 def test_get_company_name_cached(app):
     with app.app_context():

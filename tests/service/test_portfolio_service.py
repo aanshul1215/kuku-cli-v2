@@ -1,6 +1,8 @@
 import pytest
+
 import app.service.portfolio_service as portfolio_service
 from app.models import Investment, Portfolio, User
+
 
 @pytest.fixture(autouse=True)
 def setup(db_session):
@@ -83,7 +85,7 @@ def test_create_portfolio_db_failure():
         with pytest.raises(Exception) as e:
             portfolio_service.create_portfolio("Fail Portfolio", "This should fail", User())
         assert "Failed to create portfolio due to error: Database connection error" in str(e.value)
-        
+
 def test_delete_portfolio(setup, db_session):
     user = setup["user"]
     portfolio = Portfolio(name="To Be Deleted", description="This portfolio will be deleted", user=user)

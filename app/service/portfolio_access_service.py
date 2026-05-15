@@ -1,6 +1,7 @@
 from app.db import db
 from app.models import Portfolio, PortfolioAccess
 
+
 def grant_access(portfolio_id: int, user_id: str, role: str):
     access = PortfolioAccess(portfolio_id=portfolio_id, user_id=user_id, role=role)
     db.session.add(access)

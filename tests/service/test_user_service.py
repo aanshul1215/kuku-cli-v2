@@ -1,8 +1,10 @@
 import pytest
+
 import app.service.user_service as user_service
 from app.models import User
 from app.service.portfolio_service import create_portfolio
 from app.service.user_service import UnsupportedUserOperationError
+
 
 def test_get_all_users_exception(db_session, monkeypatch):
     def raise_exception(_):
@@ -49,6 +51,7 @@ def test_delete_user(db_session):
 
 def test_create_user_integrity_error(db_session):
     from unittest.mock import patch
+
     from sqlalchemy.exc import IntegrityError
     with patch('app.service.user_service.db.session.add', side_effect=IntegrityError(None, None, None)):
         with pytest.raises(UnsupportedUserOperationError) as e:
@@ -86,11 +89,12 @@ def test_update_user_balance(db_session):
     assert user.balance == 500.00
 
 def test_update_nonexistent_user_balance_raises(db_session):
-    with pytest.raises(user_service.UnsupportedUserOperationError) as e:
+    with pytest.raises(user_service.UnsupportedUserOperationError):
         user_service.update_user_balance('nonexistent_user', 300.00)
 
 def test_delete_user_integrity_error(db_session):
     from unittest.mock import patch
+
     from sqlalchemy.exc import IntegrityError
     user_service.create_user('test_user', 'xxx', 'Test', 'User', 100.00)
     with patch('app.service.user_service.db.session.delete', side_effect=IntegrityError(None, None, None)):

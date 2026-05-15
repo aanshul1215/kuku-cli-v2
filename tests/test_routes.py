@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-
 AUTH_HEADERS = {'Authorization': 'Bearer fake-token'}
 
 
@@ -240,6 +239,7 @@ def test_get_portfolio_transactions_authorized(client):
         mock_access.return_value = True
         mock_get.return_value = 'some_portfolio'
         import datetime
+
         from app.models import Transaction
         t = Transaction(username='admin', portfolio_id=1, ticker='AAPL', transaction_type='BUY', quantity=10, price=100.0, date_time=datetime.datetime.now())
         t.transaction_id = 1

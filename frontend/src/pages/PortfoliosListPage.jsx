@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "react-oidc-context";
 import { listMyPortfolios } from "../api/portfolios.js";
 import PortfolioCard from "../components/PortfolioCard.jsx";
@@ -13,7 +13,7 @@ export default function PortfoliosListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchPortfolios = async () => {
+  const fetchPortfolios = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -24,11 +24,12 @@ export default function PortfoliosListPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (token) fetchPortfolios();
-  }, [token]);
+  }, [fetchPortfolios, token]);
 
   const handleDelete = async (id) => {
     try {

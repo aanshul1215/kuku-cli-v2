@@ -1,7 +1,10 @@
 import datetime
+
 import pytest
-from app.models import User, Portfolio, Transaction
+
+from app.models import Portfolio, Transaction, User
 from app.service import transaction_service
+
 
 @pytest.fixture(autouse=True)
 def setup(db_session):
@@ -60,7 +63,7 @@ def test_get_transactions_by_user_db_failure(db_session, monkeypatch):
     def failing_query(*args, **kwargs):
         raise Exception("Database query error")
     monkeypatch.setattr(db_session, 'query', failing_query)
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception):
         transaction_service.get_transactions_by_user("testuser")
     # Since it raises e, not wrapped
 
@@ -68,12 +71,12 @@ def test_get_transactions_by_portfolio_db_failure(db_session, monkeypatch):
     def failing_query(*args, **kwargs):
         raise Exception("Database query error")
     monkeypatch.setattr(db_session, 'query', failing_query)
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception):
         transaction_service.get_transactions_by_portfolio_id(1)
 
 def test_get_transactions_by_ticker_db_failure(db_session, monkeypatch):
     def failing_query(*args, **kwargs):
         raise Exception("Database query error")
     monkeypatch.setattr(db_session, 'query', failing_query)
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception):
         transaction_service.get_transactions_by_ticker("AAPL")

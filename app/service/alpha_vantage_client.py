@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import requests
 from flask import current_app
 
+
 @dataclass
 class SecurityQuote:
     ticker: str

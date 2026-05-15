@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 
-from app.auth.auth import require_auth
 import app.service.security_service as security_service
 import app.service.transaction_service as transaction_service
+from app.auth.auth import require_auth
 
 security_bp = Blueprint('security', __name__)
 

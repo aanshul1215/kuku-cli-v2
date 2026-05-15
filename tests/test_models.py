@@ -1,6 +1,5 @@
-import pytest
 from app import create_app
-from app.models import User, Security, Transaction, Investment
+from app.models import Investment, Security, Transaction, User
 
 
 def test_create_app():

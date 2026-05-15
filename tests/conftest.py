@@ -6,11 +6,13 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
+# ruff: noqa: E402
 import pytest
+
 from app import create_app
-from app.config import TestConfig
 from app.db import db
-from app.models import User, Security
+from app.models import Security, User
+
 
 @pytest.fixture(scope='session')
 def app():

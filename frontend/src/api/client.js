@@ -23,7 +23,7 @@ export async function apiRequest(path, options = {}, token) {
   let res;
   try {
     res = await fetch(`${API_BASE}${path}`, { ...options, headers });
-  } catch (err) {
+  } catch {
     throw new ApiError(0, "Could not reach the server. Check your connection and try again.", null);
   }
   

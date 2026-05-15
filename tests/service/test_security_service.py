@@ -1,11 +1,14 @@
-import pytest
 from unittest.mock import patch
-from app.models import User, Portfolio
+
+import pytest
+
+from app.models import Portfolio, User
+from app.service.alpha_vantage_client import SecurityQuote
 from app.service.portfolio_service import create_portfolio
+from app.service.security_service import SecurityException, get_all_securities, get_security_by_ticker
 from app.service.trade_service import execute_purchase_order
 from app.service.user_service import create_user
-from app.service.alpha_vantage_client import SecurityQuote
-from app.service.security_service import SecurityException, get_all_securities, get_security_by_ticker
+
 
 @pytest.fixture(autouse=True)
 def setup(db_session):

@@ -1,9 +1,10 @@
 import os
-import jwt
-import requests
-from flask import g, request
 from functools import wraps
+
+import jwt
+from flask import g, request
 from jwt import PyJWKClient
+
 
 class AuthError(Exception):
     pass

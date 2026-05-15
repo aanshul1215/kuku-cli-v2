@@ -1,7 +1,10 @@
-import pytest
+from unittest.mock import MagicMock, patch
+
 import jwt
-from unittest.mock import patch, MagicMock
-from app.auth.auth import verify_token, require_auth, AuthError
+import pytest
+
+from app.auth.auth import AuthError, require_auth, verify_token
+
 
 def test_verify_token_valid():
     with patch('app.auth.auth._get_jwks_client') as mock_jwks, \
@@ -14,14 +17,14 @@ def test_verify_token_valid():
         assert result == {"sub": "user123", "cognito:username": "user"}
 
 def test_verify_token_expired():
-    with patch('app.auth.auth._get_jwks_client') as mock_jwks, \
+    with patch('app.auth.auth._get_jwks_client'), \
          patch('app.auth.auth.jwt.decode') as mock_decode:
         mock_decode.side_effect = jwt.ExpiredSignatureError()
         with pytest.raises(AuthError):
             verify_token("expired_token")
 
 def test_verify_token_invalid():
-    with patch('app.auth.auth._get_jwks_client') as mock_jwks, \
+    with patch('app.auth.auth._get_jwks_client'), \
          patch('app.auth.auth.jwt.decode') as mock_decode:
         mock_decode.side_effect = jwt.InvalidTokenError()
         with pytest.raises(AuthError):
