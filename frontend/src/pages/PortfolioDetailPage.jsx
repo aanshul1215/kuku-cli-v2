@@ -4,6 +4,9 @@ import { useAuth } from "react-oidc-context";
 import { getPortfolio } from "../api/portfolios.js";
 import ErrorBanner from "../components/ErrorBanner.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import HoldingsTable from "../components/HoldingsTable.jsx";
+import BuyForm from "../components/BuyForm.jsx";
+import SellForm from "../components/SellForm.jsx";
 
 export default function PortfolioDetailPage() {
   const { id } = useParams();
@@ -48,17 +51,17 @@ export default function PortfolioDetailPage() {
 
       <section style={{ marginBottom: "2rem" }}>
         <h2>Holdings</h2>
-        <div>Coming soon</div>
+        <HoldingsTable portfolioId={id} refreshKey={refreshKey} />
       </section>
 
       <section style={{ marginBottom: "2rem", display: "flex", gap: "2rem" }}>
         <div style={{ flex: 1 }}>
           <h2>Buy</h2>
-          <div>Coming soon</div>
+          <BuyForm portfolioId={id} onTradeComplete={() => setRefreshKey(k => k + 1)} />
         </div>
         <div style={{ flex: 1 }}>
           <h2>Sell</h2>
-          <div>Coming soon</div>
+          <SellForm portfolioId={id} onTradeComplete={() => setRefreshKey(k => k + 1)} />
         </div>
       </section>
 
