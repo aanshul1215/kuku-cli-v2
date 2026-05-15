@@ -20,7 +20,19 @@ export async function apiRequest(path, options = {}, token) {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  } catch (err) {
+    throw new ApiError(0, "Could not reach the server. Check your connection and try again.", null);
+  }
+  
+  if (res.status === 401) {
+    sessionStorage.clear();
+    window.location.href = "/login";
+    return null;
+  }
+
   const text = await res.text();
   const body = text ? JSON.parse(text) : null;
   if (!res.ok) {
