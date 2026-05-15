@@ -4,6 +4,7 @@ import { listMyPortfolios } from "../api/portfolios.js";
 import PortfolioCard from "../components/PortfolioCard.jsx";
 import ErrorBanner from "../components/ErrorBanner.jsx";
 import LoadingSpinner from "../components/LoadingSpinner.jsx";
+import CreatePortfolioForm from "../components/CreatePortfolioForm.jsx";
 
 export default function PortfoliosListPage() {
   const auth = useAuth();
@@ -30,7 +31,12 @@ export default function PortfoliosListPage() {
   }, [token]);
 
   const handleDelete = async (id) => {
-    // To be fully wired in Phase 8
+    try {
+      await import("../api/portfolios.js").then((m) => m.deletePortfolio(token, id));
+      fetchPortfolios();
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -38,7 +44,7 @@ export default function PortfoliosListPage() {
       <h2>My Portfolios</h2>
       {error && <ErrorBanner message={error} />}
       
-      {/* Placeholder for CreatePortfolioForm (Phase 7) */}
+      <CreatePortfolioForm onCreated={fetchPortfolios} />
 
       {isLoading ? (
         <LoadingSpinner />
