@@ -7,6 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner.jsx";
 import HoldingsTable from "../components/HoldingsTable.jsx";
 import BuyForm from "../components/BuyForm.jsx";
 import SellForm from "../components/SellForm.jsx";
+import TransactionsTable from "../components/TransactionsTable.jsx";
 
 export default function PortfolioDetailPage() {
   const { id } = useParams();
@@ -67,7 +68,7 @@ export default function PortfolioDetailPage() {
 
       <section style={{ marginBottom: "2rem" }}>
         <h2>Transaction history</h2>
-        <div>Coming soon</div>
+        <TransactionsTable portfolioId={id} refreshKey={refreshKey} />
       </section>
     </div>
   );
