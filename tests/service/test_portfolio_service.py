@@ -96,3 +96,17 @@ def test_delete_portfolio(setup, db_session):
 def test_delete_portfolio_invalid_id(db_session):
     with pytest.raises(Exception):
         portfolio_service.delete_portfolio(9999)
+
+def test_get_holdings(setup, db_session):
+    portfolio = setup["portfolio1"]
+    holdings = portfolio_service.get_holdings(portfolio.id)
+    assert len(holdings) == 1
+    assert holdings[0].ticker == "AAPL"
+
+def test_get_holdings_db_failure(db_session, monkeypatch):
+    def failing_get_session(_):
+        raise Exception("Database query error")
+    monkeypatch.setattr(db_session, 'query', failing_get_session)
+    with pytest.raises(Exception) as e:
+        portfolio_service.get_holdings(1)
+    assert "Failed to retrieve holdings due to error: Database query error" in str(e.value)

@@ -57,3 +57,11 @@ def delete_portfolio(portfolio_id: int):
         db.session.delete(portfolio)
     except Exception as e:
         raise PortfolioOperationError(f"Failed to delete portfolio due to error: {str(e)}")
+
+def get_holdings(portfolio_id: int) -> List['Investment']:
+    from app.models import Investment
+    try:
+        holdings = db.session.query(Investment).filter_by(portfolio_id=portfolio_id).all()
+        return holdings
+    except Exception as e:
+        raise PortfolioOperationError(f"Failed to retrieve holdings due to error: {str(e)}")

@@ -91,3 +91,35 @@ def revoke_portfolio_access(portfolio_id, user_id):
     revoke_access(portfolio_id, user_id)
     db.session.commit()
     return jsonify({'message': 'Access revoked'}), 200
+
+@portfolio_bp.route('/me', methods=['GET'])
+@require_auth
+def get_my_portfolios():
+    user = user_service.get_user_by_username(g.user_id)
+    if user is None:
+        return jsonify([]), 200
+    portfolios = portfolio_service.get_portfolios_by_user(user)
+    return jsonify([portfolio.__to_dict__() for portfolio in portfolios]), 200
+
+@portfolio_bp.route('/<int:portfolio_id>/holdings', methods=['GET'])
+@require_auth
+def get_portfolio_holdings(portfolio_id):
+    if not check_access(portfolio_id, g.user_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    portfolio = portfolio_service.get_portfolio_by_id(portfolio_id)
+    if portfolio is None:
+        return jsonify({'error': f'Portfolio {portfolio_id} not found'}), 404
+    holdings = portfolio_service.get_holdings(portfolio_id)
+    return jsonify([h.__to_dict__() for h in holdings]), 200
+
+@portfolio_bp.route('/<int:portfolio_id>/transactions', methods=['GET'])
+@require_auth
+def get_portfolio_transactions(portfolio_id):
+    if not check_access(portfolio_id, g.user_id):
+        return jsonify({'error': 'Forbidden'}), 403
+    portfolio = portfolio_service.get_portfolio_by_id(portfolio_id)
+    if portfolio is None:
+        return jsonify({'error': f'Portfolio {portfolio_id} not found'}), 404
+    transactions = transaction_service.get_transactions_by_portfolio_id(portfolio_id)
+    transactions.sort(key=lambda t: t.date_time, reverse=True)
+    return jsonify([t.__to_dict__() for t in transactions]), 200

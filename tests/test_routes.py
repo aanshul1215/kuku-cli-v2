@@ -189,3 +189,61 @@ def test_trade_validation_error_returns_422(client):
     assert response.status_code == 422
     payload = response.get_json()
     assert payload['error'] == 'Validation error'
+
+def test_get_my_portfolios_authorized(client):
+    with patch('app.auth.auth.verify_token') as mock_verify, patch('app.routes.portfolio_routes.user_service.get_user_by_username') as mock_user, patch('app.routes.portfolio_routes.portfolio_service.get_portfolios_by_user') as mock_portfolios:
+        _mock_admin_token(mock_verify)
+        mock_user.return_value = 'some_user'
+        from app.models import Portfolio
+        mock_portfolios.return_value = [Portfolio(name='Test', description='Test')]
+        response = client.get('/portfolios/me', headers=AUTH_HEADERS)
+    assert response.status_code == 200
+    assert isinstance(response.get_json(), list)
+
+def test_get_my_portfolios_no_user(client):
+    with patch('app.auth.auth.verify_token') as mock_verify, patch('app.routes.portfolio_routes.user_service.get_user_by_username') as mock_user:
+        _mock_admin_token(mock_verify)
+        mock_user.return_value = None
+        response = client.get('/portfolios/me', headers=AUTH_HEADERS)
+    assert response.status_code == 200
+    assert response.get_json() == []
+
+def test_get_portfolio_holdings_authorized(client):
+    with patch('app.auth.auth.verify_token') as mock_verify, patch('app.routes.portfolio_routes.check_access') as mock_access, patch('app.routes.portfolio_routes.portfolio_service.get_portfolio_by_id') as mock_get, patch('app.routes.portfolio_routes.portfolio_service.get_holdings') as mock_holdings:
+        _mock_admin_token(mock_verify)
+        mock_access.return_value = True
+        mock_get.return_value = 'some_portfolio'
+        from app.models import Investment
+        mock_holdings.return_value = [Investment(ticker='AAPL', quantity=10, portfolio_id=1)]
+        response = client.get('/portfolios/1/holdings', headers=AUTH_HEADERS)
+    assert response.status_code == 200
+    assert isinstance(response.get_json(), list)
+
+def test_get_portfolio_holdings_forbidden(client):
+    with patch('app.auth.auth.verify_token') as mock_verify, patch('app.routes.portfolio_routes.check_access') as mock_access:
+        _mock_admin_token(mock_verify)
+        mock_access.return_value = False
+        response = client.get('/portfolios/1/holdings', headers=AUTH_HEADERS)
+    assert response.status_code == 403
+
+def test_get_portfolio_holdings_not_found(client):
+    with patch('app.auth.auth.verify_token') as mock_verify, patch('app.routes.portfolio_routes.check_access') as mock_access, patch('app.routes.portfolio_routes.portfolio_service.get_portfolio_by_id') as mock_get:
+        _mock_admin_token(mock_verify)
+        mock_access.return_value = True
+        mock_get.return_value = None
+        response = client.get('/portfolios/1/holdings', headers=AUTH_HEADERS)
+    assert response.status_code == 404
+
+def test_get_portfolio_transactions_authorized(client):
+    with patch('app.auth.auth.verify_token') as mock_verify, patch('app.routes.portfolio_routes.check_access') as mock_access, patch('app.routes.portfolio_routes.portfolio_service.get_portfolio_by_id') as mock_get, patch('app.routes.portfolio_routes.transaction_service.get_transactions_by_portfolio_id') as mock_transactions:
+        _mock_admin_token(mock_verify)
+        mock_access.return_value = True
+        mock_get.return_value = 'some_portfolio'
+        import datetime
+        from app.models import Transaction
+        t = Transaction(username='admin', portfolio_id=1, ticker='AAPL', transaction_type='BUY', quantity=10, price=100.0, date_time=datetime.datetime.now())
+        t.transaction_id = 1
+        mock_transactions.return_value = [t]
+        response = client.get('/portfolios/1/transactions', headers=AUTH_HEADERS)
+    assert response.status_code == 200
+    assert isinstance(response.get_json(), list)
