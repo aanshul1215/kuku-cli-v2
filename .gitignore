@@ -10,3 +10,10 @@ app.*
 local/
 .ruff*
 instance/*.db
+
+# Frontend
+frontend/.env
+frontend/node_modules/
+frontend/dist/
+node_modules/
+dist/

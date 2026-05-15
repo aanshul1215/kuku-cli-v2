@@ -1,0 +1,30 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f7f7f8;
+  color: #1a1a1a;
+}
+button {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  font-size: 1rem;
+}
+button:hover:not(:disabled) { background: #f0f0f0; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+input, textarea {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 0.5rem 1rem; text-align: left; border-bottom: 1px solid #eee; }
+th { background: #fafafa; font-weight: 600; }
+.container { max-width: 960px; margin: 0 auto; padding: 1rem; }
+.error { color: #b00020; padding: 0.5rem; background: #fde7e9; border-radius: 4px; margin: 0.5rem 0; }
+.success { color: #1b5e20; padding: 0.5rem; background: #e8f5e9; border-radius: 4px; margin: 0.5rem 0; }
