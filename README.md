@@ -12,6 +12,10 @@ It uses Alpha Vantage for market prices and Cognito-style token auth for protect
 - Track transaction history
 - Enforce access checks on protected actions
 
+## Frontend
+
+This project includes a React frontend. For setup instructions, please see [frontend/README.md](frontend/README.md).
+
 ## Tech Stack
 
 - Python + Flask
