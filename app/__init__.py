@@ -11,6 +11,8 @@ from app.schemas import ErrorResponse
 cache = Cache()
 
 
+from flask_cors import CORS
+
 def create_app(config_name=None):
     try:
         app = Flask(__name__)
@@ -20,6 +22,7 @@ def create_app(config_name=None):
         # register extensions
         db.init_app(app)
         cache.init_app(app)
+        CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
         app.cache = cache
 
         # register blueprints
